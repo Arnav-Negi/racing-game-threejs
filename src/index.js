@@ -1,20 +1,22 @@
 import * as THREE from 'three';
 import {createLight, moveLight} from './lighting';
 import WebGL from "three/addons/capabilities/WebGL";
-import Player from "./car"
+import {Player} from "./car"
 import {renderMap} from './track';
 import {startScreen, removeStartScreen, endScreen, displayStats, removeHUD} from "./screens";
 import {doFuelCollisions, Fuel, getClosestFuel, spawnFuels} from "./fuel";
+import Tonemapping_fragmentGlsl from "three/src/renderers/shaders/ShaderChunk/tonemapping_fragment.glsl";
 
-let prevTimeRec = Math.floor((new Date).getTime()/1000);
+let prevTimeRec = Math.floor((new Date).getTime() / 1000);
 let game = {
-    mapWidth: 1000,
-    mapHeight: 1000,
-    radius: 125,
+    mapWidth: 1500,
+    mapHeight: 1500,
+    radius: 250,
     width: 90,
     State: 0,
     lap: 1,
-    time: 0
+    time: 0,
+    view: 0
 }
 
 const renderer = new THREE.WebGLRenderer();
@@ -62,8 +64,16 @@ function Init() {
 function moveCam() {
     let del = new THREE.Vector3(Math.cos(player.Angle), Math.sin(player.Angle), 0);
 
-    camera.position.set(player.position.x - 5 * del.x, player.position.y - 5 * del.y, 7);
-    cameraTop.position.set(player.position.x ,  player.position.y, 100);
+    if (game.view === 0) {
+        camera.position.set(player.position.x - 7 * del.x, player.position.y - 7 * del.y, 7);
+        camera.lookAt(player.position.x, player.position.y, 4);
+    } else {
+        camera.position.set(player.position.x, player.position.y, 4);
+        camera.lookAt(player.position.x + del.x * 5, player.position.y + del.y * 5, 3);
+    }
+
+    cameraTop.position.set(player.position.x, player.position.y, 100);
+    cameraTop.lookAt(player.position.x, player.position.y, 0);
 }
 
 function doWallCollision() {
@@ -117,7 +127,7 @@ function doWallCollision() {
 }
 
 function UpdateTime() {
-    const newTime = Math.floor((new Date).getTime()/1000);
+    const newTime = Math.floor((new Date).getTime() / 1000);
     game.time += newTime - prevTimeRec;
     prevTimeRec = newTime;
 }
@@ -129,8 +139,6 @@ function animate() {
     try {
         player.Move();
         moveCam();
-        camera.lookAt(player.position.x, player.position.y, 4);
-        cameraTop.lookAt(player.position.x, player.position.y, 0);
         doWallCollision();
         doFuelCollisions(player, scene);
         UpdateTime();
@@ -139,7 +147,7 @@ function animate() {
         if (game.state !== 1) removeHUD();
         if (newLap === true) {
             game.lap++;
-            if (game.lap === 2) {
+            if (game.lap === 4) {
                 // end game
                 removeHUD();
                 endScreen("Mcqueen finished the race!");
@@ -193,6 +201,7 @@ if (WebGL.isWebGLAvailable()) {
 
 }
 
+let ToggleT = false;
 window.addEventListener("keydown", function (event) {
     if (event.key === "w" || event.key === "W") player.accelerate = true;
     if (event.key === "s" || event.key === "S") player.decelerate = true;
@@ -204,6 +213,9 @@ window.addEventListener("keydown", function (event) {
             removeStartScreen();
         }
     }
+    if (event.key === "t" || event.key === "T") {
+        ToggleT = true;
+    }
 })
 
 window.addEventListener("keyup", function (event) {
@@ -211,6 +223,12 @@ window.addEventListener("keyup", function (event) {
     if (event.key === "s" || event.key === "S") player.decelerate = false;
     if (event.key === "d" || event.key === "D") player.turnR = false;
     if (event.key === "a" || event.key === "A") player.turnL = false;
+    if (event.key === "t" || event.key === "T") {
+        if (ToggleT === true) {
+            ToggleT = false;
+            game.view = (game.view === 1 ? 0 : 1)
+        }
+    }
 })
 
 window.addEventListener("resize", function (event) {

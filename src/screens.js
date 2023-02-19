@@ -43,7 +43,6 @@ function endScreen(result) {
     element.style.backgroundColor = 'black';
 
     element.innerHTML = "GAME OVER...<br><br>" + result
-
 }
 
 export {startScreen, removeStartScreen, endScreen, displayStats, removeHUD};
