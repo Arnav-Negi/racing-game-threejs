@@ -36,7 +36,6 @@ export default class Player {
         if (this.decelerate === true) {
             deltaV = -1
         }
-        console.log(this.accelerate, this.decelerate);
         this.velocity = new THREE.Vector3(Math.cos(this.Angle),Math.sin(this.Angle),0).multiplyScalar(this.velocity.length() + 0.7*deltaV - 0.2);
         this.Mesh.position.addScaledVector(this.velocity, 0.1);
         this.position = this.Mesh.position;

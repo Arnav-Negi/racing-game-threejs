@@ -59,7 +59,55 @@ function moveCam() { //TODO look in car direction
 
 function doWallCollision()
 {
+    const x = player.position.x, y = player.position.y
+    if (x <= -game.radius || x >= game.radius) {
+        let radialVector;
+        if (x <= -game.radius) radialVector = new THREE.Vector3(-game.radius, 0, 0);
+        else radialVector = new THREE.Vector3(game.radius, 0, 0);
 
+        const dist = player.position.distanceTo(radialVector);
+        radialVector.sub(player.position);
+        radialVector.normalize();
+        if (dist > game.radius + game.width/2 - 3) {
+            console.log(player.velocity);
+            // collide with outer wall
+            // player.velocity.addScaledVector(radialVector, (2*radialVector.dot(player.velocity)));
+            player.velocity.set(0,0,0);
+            player.position.addScaledVector(radialVector, 1);
+        }
+        if (dist < game.radius - game.width/2 + 3) {
+            console.log(player.velocity);
+            // collide with outer wall
+            // player.velocity.addScaledVector(radialVector, (2*radialVector.dot(player.velocity)));
+            player.velocity.set(0,0,0);
+            player.position.addScaledVector(radialVector, -1);
+        }
+    }
+    else {
+        let radialVector, upper, lower;
+        radialVector = new THREE.Vector3(0, -1, 0);
+        if (y >= 0) {
+            upper = game.radius + game.width/2 - 3;
+            lower = game.radius - game.width/2 + 3;
+        }
+        else {
+            upper = -game.radius + game.width/2 - 3;
+            lower = -game.radius - game.width/2 + 3;
+        }
+
+        if (y > upper) {
+            // collide with outer wall
+            // player.velocity.addScaledVector(radialVector, (2*radialVector.dot(player.velocity)));
+            player.velocity.set(0,0,0);
+            player.position.addScaledVector(radialVector, 1);
+        }
+        if (y < lower) {
+            // collide with outer wall
+            // player.velocity.addScaledVector(radialVector, (2*radialVector.dot(player.velocity)));
+            player.velocity.set(0,0,0);
+            player.position.addScaledVector(radialVector, -1);
+        }
+    }
 }
 
 
