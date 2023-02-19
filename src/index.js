@@ -3,7 +3,7 @@ import {createLight, moveLight} from './lighting';
 import WebGL from "three/addons/capabilities/WebGL";
 import Player from "./car"
 import {renderMap} from './track';
-import {startScreen, removeStartScreen, endScreen, displayStats} from "./screens";
+import {startScreen, removeStartScreen, endScreen, displayStats, removeHUD} from "./screens";
 import {doFuelCollisions, Fuel, getClosestFuel, spawnFuels} from "./fuel";
 
 let prevTimeRec = Math.floor((new Date).getTime()/1000);
@@ -134,18 +134,25 @@ function animate() {
         doWallCollision();
         doFuelCollisions(player, scene);
         UpdateTime();
-        displayStats(player, game.time, getClosestFuel(player));
         newLap = player.UpdateStats(game.radius, game.width);
+        displayStats(player, game.time, getClosestFuel(player));
+        if (game.state !== 1) removeHUD();
         if (newLap === true) {
             game.lap++;
-            if (game.lap === 4) {
+            if (game.lap === 2) {
                 // end game
+                removeHUD();
+                endScreen("Mcqueen finished the race!");
+                game.state = 2;
             }
             spawnFuels(scene, game.radius, game.width);
         }
         status = player.Check();
         if (status === 1) {
             //find leaderboard, end game;
+            removeHUD();
+            endScreen("Mcqueen got PWNed");
+            game.state = 2;
         }
     } catch (e) {
         console.log(e)

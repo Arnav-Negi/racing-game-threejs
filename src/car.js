@@ -46,7 +46,7 @@ export default class Player {
         this.Mesh.position.addScaledVector(this.velocity, 0.1);
         this.position = this.Mesh.position;
 
-        // this.fuel -= this.milage * this.velocity.length()*0.1;
+        this.fuel -= (this.velocity.length()/this.mileage)*0.1;
     }
 
     Check() {
@@ -78,3 +78,5 @@ export default class Player {
         return newLap;
     }
 }
+
+class
