@@ -1,0 +1,11 @@
+Model Information:
+* title:	Low-poly retro car
+* source:	https://sketchfab.com/3d-models/low-poly-retro-car-20aae55e2ca14713b2ebc65ef9055e9c
+* author:	crusadjor (https://sketchfab.com/crusadjor)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Low-poly retro car" (https://sketchfab.com/3d-models/low-poly-retro-car-20aae55e2ca14713b2ebc65ef9055e9c) by crusadjor (https://sketchfab.com/crusadjor) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

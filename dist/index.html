@@ -4,17 +4,33 @@
 		<title>three.js tutorial</title>
 		<style>
 			body { margin: 0; }
-			div#hud {
+			#hud {
 				position: absolute;
-				top: 20px;
-				left: 20px;
-				font-size: 24px;
+				font-family: monospace;
+				font-size: 250%;
+				width: 70vw;
+				height: 20vh;
+				background-color: black;
 				color: white;
 				z-index: 1;
+				display:flex;
+			}
+			#start-menu, #end-menu {
+				position: absolute;
+				font-family: monospace;
+				font-size: 250%;
+				color: white;
+				z-index: 1;
+				justify-content: center;
+				align-items: center;
+				display:flex;
 			}
 		</style>
 	</head>
 	<body>
+	<div id="start-menu"></div>
+	<div id="end-menu"></div>
+	<div id="hud"></div>
 		<script src="http://localhost:8080/src/cube.js"></script>
 		<script src="http://localhost:8080/src/lighting.js"></script>
 		<script src="http://localhost:8080/src/index.js"></script>
