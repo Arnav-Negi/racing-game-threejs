@@ -34,6 +34,11 @@ function doFuelCollisions(player, scene)
 
 function spawnFuels(scene, radius, trackWidth) {
     let x, y, a;
+    for (let i = 0; i<fuelCans.length; i++) {
+        if (!fuelCans[i].isDestroyed) {
+            fuelCans[i].destroy(scene);
+        }
+    }
     fuelCans = [];
     for (let quadrant = 0; quadrant < 4; quadrant++) {
         for (let numCans = 0; numCans < 2; numCans++) {

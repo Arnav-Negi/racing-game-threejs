@@ -1,18 +1,17 @@
 import * as THREE from 'three';
 import {createLight, moveLight} from './lighting';
 import WebGL from "three/addons/capabilities/WebGL";
-import {Player} from "./car"
+import {Player, Enemy} from "./car"
 import {renderMap} from './track';
 import {startScreen, removeStartScreen, endScreen, displayStats, removeHUD} from "./screens";
 import {doFuelCollisions, Fuel, getClosestFuel, spawnFuels} from "./fuel";
-import Tonemapping_fragmentGlsl from "three/src/renderers/shaders/ShaderChunk/tonemapping_fragment.glsl";
 
 let prevTimeRec = Math.floor((new Date).getTime() / 1000);
 let game = {
-    mapWidth: 1500,
-    mapHeight: 1500,
+    mapWidth: 2000,
+    mapHeight: 2000,
     radius: 250,
-    width: 90,
+    width: 75,
     State: 0,
     lap: 1,
     time: 0,
@@ -24,6 +23,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 let player = undefined;
+let enemies = [];
 const scene = new THREE.Scene();
 const light = createLight();
 scene.add(light);
@@ -39,14 +39,22 @@ camera.lookAt(0, 0, 0);
 // Camera Top view
 let insetWidth = window.innerWidth / 4;
 let insetHeight = window.innerHeight / 4;
-const cameraTop = new THREE.PerspectiveCamera(
-    90,
-    window.innerHeight / window.innerWidth,
+// const cameraTop = new THREE.PerspectiveCamera(
+//     90,
+//     window.innerHeight / window.innerWidth,
+//     0.1,
+//     1000
+// );
+const cameraTop = new THREE.OrthographicCamera(
+    -30,
+    30,
+    50,
+    -50,
     0.1,
     1000
 );
 cameraTop.name = "Overhead view";
-cameraTop.position.set(0, 0, 300);
+cameraTop.position.set(0, 0, 60);
 cameraTop.lookAt(0, 0, 0);
 cameraTop.up.set(0, 1, 0);
 // camera.add(cameraTop);
@@ -55,7 +63,10 @@ scene.add(camera);
 
 function Init() {
     startScreen();
-    player = new Player(-game.radius, -game.radius, 1, scene);
+    player = new Player(-game.radius, -game.radius, -0, scene);
+    enemies.push(new Enemy(-game.radius + 10, -game.radius, 1.7, scene, 1));
+    enemies.push(new Enemy(-game.radius, -game.radius + 10, 1.7, scene, 1));
+    enemies.push(new Enemy(-game.radius + 10, -game.radius + 10, 1.7, scene, 1));
     spawnFuels(scene, game.radius, game.width);
     renderMap(game.mapWidth, game.mapHeight, game.radius, game.width, scene);
     animate();
@@ -72,7 +83,7 @@ function moveCam() {
         camera.lookAt(player.position.x + del.x * 5, player.position.y + del.y * 5, 3);
     }
 
-    cameraTop.position.set(player.position.x, player.position.y, 100);
+    cameraTop.position.set(player.position.x, player.position.y, 60);
     cameraTop.lookAt(player.position.x, player.position.y, 0);
 }
 
@@ -142,7 +153,7 @@ function animate() {
         doWallCollision();
         doFuelCollisions(player, scene);
         UpdateTime();
-        newLap = player.UpdateStats(game.radius, game.width);
+        newLap = player.UpdateStats(game.radius);
         displayStats(player, game.time, getClosestFuel(player));
         if (game.state !== 1) removeHUD();
         if (newLap === true) {

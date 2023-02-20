@@ -27,8 +27,10 @@ function displayStats(player, time, toNextFuel)
     const fuel = Math.floor(player.fuel);
     const fuelDist = Math.floor(toNextFuel);
     const timeStr = String(Math.floor(time/60)) + ":" + String(time - Math.floor(time/60));
+    const mileage = Math.floor(player.fuelUsed <= 5 ? "-" : player.distanceYet / player.fuelUsed);
+    const score = Math.floor(player.distanceYet);
 
-    element.innerHTML = `Health: ${health} \t Fuel: ${fuel} \t Next Fuel: ${fuelDist}<br>Time: ${timeStr} \t Lap: ${player.lap}`
+    element.innerHTML = `Health: ${health} \t Fuel: ${fuel} \t Next Fuel: ${fuelDist}<br>Time: ${timeStr} \t Lap: ${player.lap} \t Score: ${score} \t Mileage: ${mileage} `
 }
 
 function removeHUD() {
