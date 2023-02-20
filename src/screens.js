@@ -8,7 +8,8 @@ function startScreen() {
         "W to accelerate<br>" +
         "S to deccelerate<br>" +
         "A/D to turn left/right<br>" +
-        "T to toggle view"
+        "T to toggle view" +
+        "Press space bar to start"
 }
 
 function removeStartScreen() {
