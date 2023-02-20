@@ -5,6 +5,7 @@ import {Player, Enemy} from "./car"
 import {renderMap} from './track';
 import {startScreen, removeStartScreen, endScreen, displayStats, removeHUD} from "./screens";
 import {doFuelCollisions, Fuel, getClosestFuel, spawnFuels} from "./fuel";
+import {GLTFLoader} from "three/addons/loaders/GLTFLoader";
 
 let prevTimeRec = Math.floor((new Date).getTime() / 1000);
 let game = {
@@ -39,12 +40,7 @@ camera.lookAt(0, 0, 0);
 // Camera Top view
 let insetWidth = window.innerWidth / 4;
 let insetHeight = window.innerHeight / 4;
-// const cameraTop = new THREE.PerspectiveCamera(
-//     90,
-//     window.innerHeight / window.innerWidth,
-//     0.1,
-//     1000
-// );
+
 const cameraTop = new THREE.OrthographicCamera(
     -30,
     30,
@@ -57,16 +53,16 @@ cameraTop.name = "Overhead view";
 cameraTop.position.set(0, 0, 60);
 cameraTop.lookAt(0, 0, 0);
 cameraTop.up.set(0, 1, 0);
-// camera.add(cameraTop);
 
 scene.add(camera);
 
 function Init() {
     startScreen();
-    player = new Player(-game.radius, -game.radius, -0, scene);
-    enemies.push(new Enemy(-game.radius + 10, -game.radius, 1.7, scene, 1));
-    enemies.push(new Enemy(-game.radius, -game.radius + 10, 1.7, scene, 1));
-    enemies.push(new Enemy(-game.radius + 10, -game.radius + 10, 1.7, scene, 1));
+    loadAudience();
+    player = new Player(-game.radius, -game.radius - game.width/4, 0, scene);
+    enemies.push(new Enemy(-game.radius + 15, -game.radius - game.width/4, 1.7, scene, 1));
+    enemies.push(new Enemy(-game.radius, -game.radius + game.width/4, 1.7, scene, 2));
+    enemies.push(new Enemy(-game.radius + 15, -game.radius + game.width/4, 1.7, scene, 3));
     spawnFuels(scene, game.radius, game.width);
     renderMap(game.mapWidth, game.mapHeight, game.radius, game.width, scene);
     animate();
@@ -143,15 +139,58 @@ function UpdateTime() {
     prevTimeRec = newTime;
 }
 
+function calculcateRank(player, enemies) {
+    let rank = 1;
+    for (let i = 0; i < enemies.length; i++) {
+        if (enemies[i].lap >= player.lap) {
+            rank += 1;
+        }
+    }
+
+    return rank;
+}
+
+function loadAudience() {
+    for (let i = 0; i < 10; i++) {
+        (new GLTFLoader()).loadAsync("http://localhost:8080/src/audience.glb").then((res) => {
+            const Mesh = res.scene;
+
+            Mesh.scale.set(1.5,1.5, 1.5);
+            Mesh.rotation.set(Math.PI/2,Math.PI/2, 0);
+            Mesh.position.set(-game.radius + 5 + i*25, -game.radius - game.width/2 - 10, 1);
+            scene.add(Mesh);
+        }).catch(reportError => console.log(reportError));
+    }
+
+    for (let i = 0; i < 10; i++) {
+        (new GLTFLoader()).loadAsync("http://localhost:8080/src/audience.glb").then((res) => {
+            const Mesh = res.scene;
+
+            Mesh.scale.set(1.5,1.5, 1.5);
+            Mesh.rotation.set(Math.PI/2,3*Math.PI/2, 0);
+            Mesh.position.set(-game.radius + 5 + i*25, -game.radius + game.width/2 + 10, 1);
+            scene.add(Mesh);
+        }).catch(reportError => console.log(reportError));
+    }
+}
+
 
 function animate() {
     let status, newLap;
     requestAnimationFrame(animate);
     try {
-        player.Move();
+        if (game.state === 1) {
+            player.Move();
+            for (let i = 0; i < enemies.length; i++) {
+                enemies[i].UpdateStats(game.radius);
+                enemies[i].Move(game.radius, game.width);
+            }
+        }
+
         moveCam();
         doWallCollision();
         doFuelCollisions(player, scene);
+        player.doCollisionWithCars(enemies);
         UpdateTime();
         newLap = player.UpdateStats(game.radius);
         displayStats(player, game.time, getClosestFuel(player));
@@ -161,16 +200,17 @@ function animate() {
             if (game.lap === 4) {
                 // end game
                 removeHUD();
-                endScreen("Mcqueen finished the race!");
+
+                endScreen(0, calculcateRank(player, enemies));
                 game.state = 2;
             }
             spawnFuels(scene, game.radius, game.width);
         }
         status = player.Check();
-        if (status === 1) {
+        if (status !== 0) {
             //find leaderboard, end game;
             removeHUD();
-            endScreen("Mcqueen got PWNed");
+            endScreen(status, 0);
             game.state = 2;
         }
     } catch (e) {
